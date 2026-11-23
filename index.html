@@ -116,17 +116,16 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, push, set, remove, query, limitToLast, onChildAdded, onChildRemoved, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    // ====== DÁN FIREBASE CONFIG CỦA BẠN VÀO ĐÂY ======
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "YOUR_PROJECT",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyBW5N-7ZNfRuPOB4F_rJve0Qm7YQ20nPVY",
+      authDomain: "mhx-fakenote.firebaseapp.com",
+      databaseURL: "https://mhx-fakenote-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "mhx-fakenote",
+      storageBucket: "mhx-fakenote.firebasestorage.app",
+      messagingSenderId: "460453649356",
+      appId: "1:460453649356:web:6a14f58b365ee4d2d75b69",
+      measurementId: "G-7S7DVZ81KG"
     };
-    // ==================================================
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -137,10 +136,8 @@
     const enc = new TextEncoder(), dec = new TextDecoder();
     const $ = id => document.getElementById(id);
 
-    // Hiển thị ngày hiện tại trên trang ghi chú giả cho giống thật
     $("decoyDate").textContent = new Date().toLocaleDateString("vi-VN");
 
-    // --- Cơ chế Ngụy trang ---
     function showDecoy() {
       if (!isLoggedIn) return;
       $("lightbox").style.display = "none";
@@ -151,7 +148,6 @@
       $("decoy").style.display = "none";
     }
 
-    // Tự động ngụy trang khi chuyển tab, thoát app hoặc tắt màn hình
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         if (ignoreNextHide) return;
@@ -161,10 +157,8 @@
       }
     });
 
-    // Nút ngụy trang thủ công 1 chạm
     $("hideBtn").onclick = showDecoy;
 
-    // Chạm 3 lần liên tiếp vào tiêu đề "Ghi chú công việc" để quay lại chat
     let tapCount = 0, tapTimer = null;
     $("decoyUnlock").onclick = () => {
       tapCount++;
@@ -177,7 +171,6 @@
       }
     };
 
-    // --- Mã hóa & Nén ảnh ---
     function bytesToBase64(bytes) {
       let bin = "";
       const chunk = 0x4000;
@@ -249,7 +242,6 @@
       });
     }
 
-    // --- Vào phòng ---
     $("joinBtn").onclick = async () => {
       myName = $("name").value.trim();
       const pass = $("pass").value.trim();
@@ -332,7 +324,6 @@
       });
     };
 
-    // Gửi chữ
     $("form").onsubmit = async (e) => {
       e.preventDefault();
       const text = $("text").value.trim();
@@ -343,7 +334,6 @@
       push(msgRef, { p: payload });
     };
 
-    // Gửi ảnh (bỏ qua tự động ngụy trang khi mở thư viện ảnh)
     $("imgBtn").onclick = () => {
       ignoreNextHide = true;
       $("imgInput").click();
