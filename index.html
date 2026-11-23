@@ -3,114 +3,242 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Ghi chú công việc</title>
+  <title>Theo_Doi_Khach_Hang_T11 - Google Trang tính</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230F9D58'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/></svg>">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #111; color: #eee; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+    :root {
+      --green: #0f9d58;
+      --green-bg: #e6f4ea;
+      --border: #e0e0e0;
+      --cell-border: #e2e3e3;
+      --header-bg: #f8f9fa;
+      --text: #202124;
+      --muted: #5f6368;
+      --blue: #1a73e8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #fff; color: var(--text); height: 100dvh; display: flex; flex-direction: column; overflow: hidden; font-size: 13px; }
 
-    /* Màn hình vào phòng */
-    #login { margin: auto; width: 90%; max-width: 340px; display: flex; flex-direction: column; gap: 12px; }
-    #login h2 { font-size: 18px; font-weight: 500; text-align: center; color: #aaa; margin-bottom: 6px; }
-    input { background: #1e1e1e; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 16px; outline: none; }
-    input:focus { border-color: #4f8cff; }
-    button { background: #4f8cff; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
-    button:active { opacity: 0.8; }
+    /* === MÀN HÌNH ĐĂNG NHẬP (Kiểu hộp thoại bảo mật tài liệu) === */
+    #login { position: fixed; inset: 0; background: #f1f3f4; display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+    .login-box { background: #fff; border: 1px solid #dadce0; border-radius: 8px; padding: 24px; width: 100%; max-width: 360px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 14px; }
+    .login-head { display: flex; align-items: center; gap: 10px; }
+    .sheets-icon { width: 28px; height: 28px; background: var(--green); border-radius: 4px; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; flex-shrink: 0; }
+    .login-head h2 { font-size: 16px; font-weight: 500; color: var(--text); }
+    .login-sub { font-size: 12px; color: var(--muted); }
+    .login-box input { border: 1px solid #dadce0; border-radius: 4px; padding: 10px 12px; font-size: 14px; outline: none; }
+    .login-box input:focus { border-color: var(--green); }
+    .login-box button { background: var(--green); color: #fff; border: none; border-radius: 4px; padding: 10px; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .login-box button:hover { opacity: 0.92; }
 
-    /* Màn hình chat */
-    #chat { display: none; flex-direction: column; height: 100dvh; }
-    header { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #1a1a1a; border-bottom: 1px solid #2a2a2a; gap: 8px; }
-    .status-wrap { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #bbb; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-    .dot { width: 9px; height: 9px; border-radius: 50%; background: #555; flex-shrink: 0; transition: background 0.2s; }
-    .dot.online { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+    /* === GIAO DIỆN CHÍNH GOOGLE SHEETS === */
+    #app { display: none; flex-direction: column; height: 100dvh; width: 100%; }
 
-    .actions { display: flex; gap: 6px; flex-shrink: 0; }
-    .btn-sm { padding: 6px 9px; font-size: 13px; border-radius: 6px; background: #2c2c2c; color: #ddd; }
-    .btn-danger { background: #b91c1c; color: #fff; }
+    /* Top Header */
+    .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px 4px; background: #f9fbfd; gap: 10px; }
+    .top-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .doc-info { min-width: 0; }
+    .doc-title { font-size: 16px; font-weight: 400; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .menu-bar { display: flex; gap: 12px; font-size: 13px; color: var(--text); margin-top: 2px; }
+    .menu-bar span { cursor: pointer; padding: 2px 4px; border-radius: 3px; }
+    .menu-bar span:hover { background: #e8eaed; }
 
-    #messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-    .msg { max-width: 80%; padding: 8px 12px; border-radius: 12px; font-size: 15px; line-height: 1.4; word-break: break-word; background: #222; align-self: flex-start; }
-    .msg.me { background: #2563eb; align-self: flex-end; }
-    .meta { font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
-    .msg img { max-width: 100%; max-height: 260px; border-radius: 8px; display: block; margin-top: 4px; cursor: pointer; }
+    .top-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .presence-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 16px; background: #f1f3f4; font-size: 12px; color: var(--muted); border: 1px solid #e0e0e0; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #9aa0a6; flex-shrink: 0; }
+    .dot.online { background: var(--green); box-shadow: 0 0 4px var(--green); }
+    .btn-sheet { background: #c2e7ff; color: #001d35; border: none; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .btn-ghost { background: transparent; border: 1px solid #dadce0; color: var(--muted); padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+    .btn-ghost:hover { background: #f1f3f4; color: var(--text); }
 
-    form { display: flex; align-items: center; gap: 8px; padding: 10px; background: #1a1a1a; border-top: 1px solid #2a2a2a; }
-    #imgBtn { background: #2c2c2c; padding: 10px 12px; font-size: 16px; flex-shrink: 0; }
-    #text { flex: 1; padding: 10px 12px; min-width: 0; }
+    /* Toolbar (Desktop only) */
+    .toolbar { display: flex; align-items: center; gap: 14px; padding: 6px 16px; margin: 4px 12px 6px; background: #edf2fa; border-radius: 20px; font-size: 12px; color: #444746; overflow-x: auto; white-space: nowrap; }
+    .toolbar span { cursor: default; user-select: none; }
+    .toolbar .sep { color: #c4c7c5; }
 
-    /* Phóng to ảnh */
-    #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 99; align-items: center; justify-content: center; padding: 16px; }
-    #lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+    /* Formula Bar (Ô nhập tin nhắn) */
+    .formula-bar { display: flex; align-items: center; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: #fff; height: 34px; flex-shrink: 0; }
+    .cell-name { width: 56px; text-align: center; font-size: 12px; color: var(--text); border-right: 1px solid var(--border); line-height: 34px; flex-shrink: 0; }
+    .fx-label { width: 32px; text-align: center; font-style: italic; font-family: Georgia, serif; font-size: 14px; color: #80868b; flex-shrink: 0; }
+    #msgForm { flex: 1; display: flex; align-items: center; height: 100%; min-width: 0; }
+    #text { flex: 1; border: none; outline: none; font-size: 13px; padding: 0 8px; height: 100%; min-width: 0; background: transparent; }
+    .fx-btn { background: transparent; border: none; color: var(--muted); padding: 0 10px; height: 100%; cursor: pointer; font-size: 15px; display: flex; align-items: center; }
+    .fx-btn:hover { background: #f1f3f4; color: var(--text); }
+    .fx-send { color: var(--green); font-weight: bold; }
 
-    /* Màn hình ngụy trang (Ghi chú công việc giả) */
-    #decoy { display: none; position: fixed; inset: 0; background: #f8f9fa; color: #202124; z-index: 999; flex-direction: column; overflow-y: auto; }
-    .decoy-header { background: #fff; padding: 14px 18px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
-    .decoy-title { font-size: 18px; font-weight: 600; color: #202124; user-select: none; -webkit-user-select: none; }
-    .decoy-date { font-size: 12px; color: #5f6368; }
-    .decoy-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; max-width: 600px; width: 100%; margin: 0 auto; }
-    .note-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 14px; }
-    .note-card h3 { font-size: 15px; margin-bottom: 8px; color: #1a73e8; }
-    .note-card ul { padding-left: 18px; font-size: 14px; line-height: 1.7; color: #3c4043; }
-    .note-card textarea { width: 100%; border: none; outline: none; resize: none; font-size: 14px; line-height: 1.6; color: #3c4043; min-height: 90px; background: transparent; }
+    /* Lưới Bảng Tính */
+    .grid-wrap { flex: 1; overflow: auto; background: #fff; position: relative; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { border: 1px solid var(--cell-border); padding: 5px 8px; text-align: left; vertical-align: top; word-break: break-word; }
+    thead th { position: sticky; top: 0; background: var(--header-bg); color: var(--muted); font-weight: 500; text-align: center; font-size: 12px; z-index: 2; height: 26px; padding: 4px; }
+    .col-idx { width: 38px; background: var(--header-bg); color: var(--muted); text-align: center; font-size: 11px; user-select: none; }
+    .col-a { width: 72px; color: var(--muted); font-size: 12px; text-align: center; }
+    .col-b { width: 120px; font-weight: 500; }
+    .col-c { width: auto; }
+    .col-d { width: 95px; color: var(--muted); font-size: 12px; text-align: center; }
+
+    .header-row td { background: #f1f3f4; font-weight: 600; color: var(--text); }
+    .me-row td:not(.col-idx) { background: #f8fbff; }
+    .img-link { color: var(--blue); text-decoration: underline; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+
+    /* Thanh Sheet Tabs dưới đáy */
+    .sheet-tabs { display: flex; align-items: center; background: #f8f9fa; border-top: 1px solid var(--border); padding: 0 10px; height: 36px; gap: 4px; flex-shrink: 0; }
+    .tab-btn { padding: 7px 14px; font-size: 12px; font-weight: 500; color: var(--muted); background: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; height: 100%; display: flex; align-items: center; gap: 6px; }
+    .tab-btn.active { background: #fff; color: var(--green); border-bottom-color: var(--green); }
+    .tab-badge { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); display: none; }
+
+    /* Lightbox xem ảnh */
+    #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 2000; align-items: center; justify-content: center; padding: 16px; }
+    #lightbox img { max-width: 100%; max-height: 100%; border-radius: 4px; }
+
+    /* === RESPONSIVE MOBILE (<= 768px) === */
+    @media (max-width: 768px) {
+      .menu-bar, .toolbar, .col-d { display: none !important; }
+      .top-bar { padding: 8px 10px; border-bottom: 1px solid var(--border); background: #fff; }
+      .doc-title { font-size: 15px; font-weight: 500; }
+      .presence-pill { padding: 3px 8px; font-size: 11px; }
+      .btn-ghost { padding: 4px 7px; font-size: 11px; }
+      .col-idx { width: 28px; }
+      .col-a { width: 52px; font-size: 11px; padding: 5px 4px; }
+      .col-b { width: 78px; font-size: 12px; padding: 5px 6px; }
+      .col-c { font-size: 13px; padding: 5px 6px; }
+
+      /* Đẩy Formula Bar xuống đáy trên Mobile giống app Google Sheets */
+      .formula-bar { order: 3; height: 44px; border-top: 1px solid #dadce0; border-bottom: none; }
+      .cell-name { display: none; }
+      .fx-label { width: 34px; font-size: 15px; }
+      #text { font-size: 15px; }
+      .grid-wrap { order: 2; }
+      .sheet-tabs { order: 4; height: 38px; background: #f1f3f4; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Màn hình đăng nhập phòng -->
+  <!-- Màn hình mở tệp (Đăng nhập phòng) -->
   <div id="login">
-    <h2>Quick Notes</h2>
-    <input id="name" type="text" placeholder="Tên hiển thị (VD: A)" autocomplete="off">
-    <input id="pass" type="password" placeholder="Mật khẩu phòng chung" autocomplete="off">
-    <button id="joinBtn">Vào</button>
+    <div class="login-box">
+      <div class="login-head">
+        <div class="sheets-icon">⊞</div>
+        <div>
+          <h2>Theo_Doi_Khach_Hang_T11</h2>
+          <div class="login-sub">Tài liệu nội bộ được bảo vệ bằng mật khẩu</div>
+        </div>
+      </div>
+      <input id="name" type="text" placeholder="Tên nhân sự (VD: Văn)" autocomplete="off">
+      <input id="pass" type="password" placeholder="Mã truy cập tài liệu" autocomplete="off">
+      <button id="joinBtn">Mở trang tính</button>
+    </div>
   </div>
 
-  <!-- Màn hình chat -->
-  <div id="chat">
-    <header>
-      <div class="status-wrap">
-        <span class="dot" id="onlineDot"></span>
-        <span id="onlineText">Đang kết nối...</span>
+  <!-- Giao diện Google Sheets -->
+  <div id="app">
+    <div class="top-bar">
+      <div class="top-left">
+        <div class="sheets-icon">⊞</div>
+        <div class="doc-info">
+          <div class="doc-title">Theo_Doi_Khach_Hang_T11</div>
+          <div class="menu-bar">
+            <span>Tệp</span><span>Chỉnh sửa</span><span>Xem</span><span>Chèn</span><span>Định dạng</span><span>Dữ liệu</span><span>Công cụ</span><span>Trợ giúp</span>
+          </div>
+        </div>
       </div>
-      <div class="actions">
-        <button class="btn-sm" id="hideBtn" title="Ngụy trang ngay">🕶️</button>
-        <button class="btn-sm" id="wipeBtn" title="Xóa toàn bộ tin nhắn">🔥</button>
-        <button class="btn-sm btn-danger" id="panicBtn" title="Thoát ngay lập tức">✕</button>
+      <div class="top-right">
+        <div class="presence-pill" title="Người đang xem chung tệp">
+          <span class="dot" id="onlineDot"></span>
+          <span id="onlineText">1 người xem</span>
+        </div>
+        <button class="btn-ghost" id="wipeBtn" title="Xóa toàn bộ dữ liệu sheet này">Xóa lọc</button>
+        <button class="btn-ghost" id="panicBtn" title="Đóng tệp ngay lập tức">Đóng</button>
       </div>
-    </header>
-    <div id="messages"></div>
-    <form id="form">
-      <input type="file" id="imgInput" accept="image/*" hidden>
-      <button type="button" id="imgBtn" title="Gửi ảnh">📷</button>
-      <input id="text" type="text" placeholder="Nhắn tin..." autocomplete="off">
-      <button type="submit">Gửi</button>
-    </form>
+    </div>
+
+    <!-- Thanh công cụ giả (Chỉ hiện trên Desktop) -->
+    <div class="toolbar">
+      <span>↶</span><span>↷</span><span>🖨️</span><span class="sep">|</span>
+      <span>100% ▾</span><span class="sep">|</span>
+      <span>₫</span><span>%</span><span>.00</span><span class="sep">|</span>
+      <span>Arial ▾</span><span class="sep">|</span>
+      <span>10 ▾</span><span class="sep">|</span>
+      <span><b>B</b></span><span><i>I</i></span><span><s>S</s></span><span>A</span><span class="sep">|</span>
+      <span>田</span><span>≡ ▾</span><span>∑</span>
+    </div>
+
+    <!-- Thanh công thức fx = Ô nhập tin nhắn -->
+    <div class="formula-bar">
+      <div class="cell-name" id="cellPos">C2</div>
+      <div class="fx-label">fx</div>
+      <form id="msgForm">
+        <input type="file" id="imgInput" accept="image/*" hidden>
+        <input id="text" type="text" placeholder="Nhập văn bản hoặc công thức..." autocomplete="off">
+        <button type="button" class="fx-btn" id="imgBtn" title="Đính kèm tệp ảnh">📎</button>
+        <button type="submit" class="fx-btn fx-send" title="Lưu ô (Enter)">✓</button>
+      </form>
+    </div>
+
+    <!-- Khu vực bảng tính -->
+    <div class="grid-wrap" id="gridWrap">
+      <!-- Bảng 1: Dữ liệu thật (Chat) -->
+      <table id="sheetChat">
+        <thead>
+          <tr>
+            <th class="col-idx"></th>
+            <th class="col-a">A</th>
+            <th class="col-b">B</th>
+            <th class="col-c">C</th>
+            <th class="col-d">D</th>
+          </tr>
+        </thead>
+        <tbody id="chatBody">
+          <tr class="header-row">
+            <td class="col-idx">1</td>
+            <td class="col-a">Thời gian</td>
+            <td class="col-b">Phụ trách</td>
+            <td class="col-c">Nội dung trao đổi / Ghi chú khách hàng</td>
+            <td class="col-d">Trạng thái</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Bảng 2: Báo cáo giả (Ngụy trang) -->
+      <table id="sheetDecoy" style="display:none;">
+        <thead>
+          <tr>
+            <th class="col-idx"></th>
+            <th class="col-a">A</th>
+            <th class="col-b">B</th>
+            <th class="col-c">C</th>
+            <th class="col-d">D</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="header-row">
+            <td class="col-idx">1</td>
+            <td class="col-a">Mã KH</td>
+            <td class="col-b">Tên cửa hàng</td>
+            <td class="col-c">Tình trạng chăm sóc</td>
+            <td class="col-d">Tiến độ</td>
+          </tr>
+          <tr><td class="col-idx">2</td><td class="col-a">KH-104</td><td class="col-b">Tạp hóa Minh Anh</td><td class="col-c">Đã gửi báo giá gói cơ bản, hẹn gọi lại chiều T5</td><td class="col-d">Đang xử lý</td></tr>
+          <tr><td class="col-idx">3</td><td class="col-a">KH-105</td><td class="col-b">Cafe Góc Phố</td><td class="col-c">Chủ quán quan tâm phần mềm order bàn, cần demo trực tiếp</td><td class="col-d">Hẹn lịch</td></tr>
+          <tr><td class="col-idx">4</td><td class="col-a">KH-106</td><td class="col-b">Bún Chả Cô Lan</td><td class="col-c">Không nghe máy lần 1, note gọi lại khung 14h30</td><td class="col-d">Chờ gọi</td></tr>
+          <tr><td class="col-idx">5</td><td class="col-a">KH-107</td><td class="col-b">Thời trang Nắng</td><td class="col-c">Đang dùng sổ tay, cân nhắc chuyển đổi quản lý tồn kho</td><td class="col-d">Tiềm năng</td></tr>
+          <tr><td class="col-idx">6</td><td class="col-a">KH-108</td><td class="col-b">Hiệu thuốc An Tâm</td><td class="col-c">Đã xin số Zalo quản lý, gửi tài liệu tham khảo</td><td class="col-d">Đã gửi</td></tr>
+          <tr><td class="col-idx">7</td><td class="col-a">KH-109</td><td class="col-b">Trà sữa Bobo</td><td class="col-c">Cần thêm máy in hóa đơn nhiệt, báo giá combo thiết bị</td><td class="col-d">Báo giá</td></tr>
+          <tr><td class="col-idx">8</td><td class="col-a">KH-110</td><td class="col-b">Siêu thị mini 24h</td><td class="col-c">Xác nhận lịch qua cửa hàng khảo sát lúc 9h00 sáng mai</td><td class="col-d">Đã chốt</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Thanh chuyển Sheet dưới đáy -->
+    <div class="sheet-tabs">
+      <button class="tab-btn" id="tabDecoy">BaoCao_TongHop</button>
+      <button class="tab-btn active" id="tabChat">Data_ChiTiet <span class="tab-badge" id="unreadBadge"></span></button>
+    </div>
   </div>
 
-  <!-- Khung xem ảnh phóng to -->
+  <!-- Khung phóng to ảnh -->
   <div id="lightbox"><img id="lightboxImg" src="" alt=""></div>
-
-  <!-- Màn hình ngụy trang -->
-  <div id="decoy">
-    <div class="decoy-header">
-      <div class="decoy-title" id="decoyUnlock">Ghi chú công việc</div>
-      <div class="decoy-date" id="decoyDate"></div>
-    </div>
-    <div class="decoy-body">
-      <div class="note-card">
-        <h3>Việc cần xử lý hôm nay</h3>
-        <ul>
-          <li>Rà soát lại danh sách khách hàng tiềm năng khu vực mới</li>
-          <li>Gọi xác nhận lịch hẹn tư vấn buổi chiều</li>
-          <li>Cập nhật tiến độ báo cáo cuối ngày lên hệ thống</li>
-          <li>Kiểm tra lại thông tin liên hệ các cửa hàng chưa nghe máy</li>
-        </ul>
-      </div>
-      <div class="note-card">
-        <h3>Ghi chú nhanh</h3>
-        <textarea placeholder="Nhập ghi chú cuộc gọi...">- Khách hẹn gọi lại sau 15h
-- Cần gửi thêm bảng giá gói cơ bản qua Zalo</textarea>
-      </div>
-    </div>
-  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -131,46 +259,56 @@
     const db = getDatabase(app);
 
     let myName = "", cryptoKey = null, msgRef = null, myPresenceRef = null;
-    let isLoggedIn = false, ignoreNextHide = false;
+    let isLoggedIn = false, isDecoyMode = false, ignoreNextHide = false, rowCount = 1;
     const mySessionId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
     const enc = new TextEncoder(), dec = new TextDecoder();
     const $ = id => document.getElementById(id);
 
-    $("decoyDate").textContent = new Date().toLocaleDateString("vi-VN");
-
-    function showDecoy() {
+    // --- Chuyển đổi giữa Sheet Thật & Sheet Giả ---
+    function switchToDecoy() {
       if (!isLoggedIn) return;
+      isDecoyMode = true;
       $("lightbox").style.display = "none";
-      $("decoy").style.display = "flex";
+      $("sheetChat").style.display = "none";
+      $("sheetDecoy").style.display = "table";
+      $("tabDecoy").classList.add("active");
+      $("tabChat").classList.remove("active");
+      $("text").value = "";
+      $("text").placeholder = "Nhập công thức báo cáo...";
+      $("cellPos").textContent = "A2";
     }
 
-    function hideDecoy() {
-      $("decoy").style.display = "none";
+    function switchToChat() {
+      isDecoyMode = false;
+      $("sheetDecoy").style.display = "none";
+      $("sheetChat").style.display = "table";
+      $("tabChat").classList.add("active");
+      $("tabDecoy").classList.remove("active");
+      $("unreadBadge").style.display = "none";
+      $("text").placeholder = "Nhập văn bản hoặc công thức...";
+      $("cellPos").textContent = "C" + (rowCount + 1);
+      $("gridWrap").scrollTop = $("gridWrap").scrollHeight;
     }
 
+    $("tabDecoy").onclick = switchToDecoy;
+    $("tabChat").onclick = switchToChat;
+
+    // Tự động chuyển sang báo cáo giả khi chuyển tab/app
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         if (ignoreNextHide) return;
-        showDecoy();
+        switchToDecoy();
       } else {
         ignoreNextHide = false;
       }
     });
 
-    $("hideBtn").onclick = showDecoy;
+    // Bấm phím ESC trên PC để ẩn ngay sang báo cáo giả
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && isLoggedIn) switchToDecoy();
+    });
 
-    let tapCount = 0, tapTimer = null;
-    $("decoyUnlock").onclick = () => {
-      tapCount++;
-      clearTimeout(tapTimer);
-      if (tapCount >= 3) {
-        tapCount = 0;
-        hideDecoy();
-      } else {
-        tapTimer = setTimeout(() => { tapCount = 0; }, 800);
-      }
-    };
-
+    // --- Mã hóa & Nén ảnh ---
     function bytesToBase64(bytes) {
       let bin = "";
       const chunk = 0x4000;
@@ -190,14 +328,10 @@
     async function initCrypto(pass) {
       const hashBuf = await crypto.subtle.digest("SHA-256", enc.encode("room-id:" + pass));
       const roomId = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 24);
-
       const baseKey = await crypto.subtle.importKey("raw", enc.encode(pass), "PBKDF2", false, ["deriveKey"]);
       const key = await crypto.subtle.deriveKey(
         { name: "PBKDF2", salt: enc.encode("static-salt-v1"), iterations: 100000, hash: "SHA-256" },
-        baseKey,
-        { name: "AES-GCM", length: 256 },
-        false,
-        ["encrypt", "decrypt"]
+        baseKey, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
       );
       return { roomId, key };
     }
@@ -213,9 +347,7 @@
 
     async function decryptData(b64) {
       const bytes = base64ToBytes(b64);
-      const iv = bytes.slice(0, 12);
-      const data = bytes.slice(12);
-      const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, cryptoKey, data);
+      const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: bytes.slice(0, 12) }, cryptoKey, bytes.slice(12));
       return JSON.parse(dec.decode(plain));
     }
 
@@ -242,10 +374,11 @@
       });
     }
 
+    // --- Mở trang tính (Vào phòng) ---
     $("joinBtn").onclick = async () => {
       myName = $("name").value.trim();
       const pass = $("pass").value.trim();
-      if (!myName || !pass) return alert("Nhập đủ tên và mật khẩu phòng.");
+      if (!myName || !pass) return alert("Vui lòng nhập đầy đủ tên và mã truy cập.");
 
       const { roomId, key } = await initCrypto(pass);
       cryptoKey = key;
@@ -255,9 +388,10 @@
 
       $("pass").value = "";
       $("login").style.display = "none";
-      $("chat").style.display = "flex";
+      $("app").style.display = "flex";
       isLoggedIn = true;
 
+      // Trạng thái Online
       const encName = await encryptData(myName);
       onValue(ref(db, ".info/connected"), (snap) => {
         if (snap.val() === true) {
@@ -278,43 +412,62 @@
         }
         if (others.length > 0) {
           $("onlineDot").classList.add("online");
-          $("onlineText").textContent = `${others.join(", ")} đang online`;
+          $("onlineText").textContent = `${others.join(", ")} đang xem`;
         } else {
           $("onlineDot").classList.remove("online");
-          $("onlineText").textContent = "Chưa có ai online";
+          $("onlineText").textContent = "Chỉ mình bạn";
         }
       });
 
-      const q = query(msgRef, limitToLast(50));
+      // Nhận tin nhắn (mỗi tin = 1 dòng trong bảng)
+      const q = query(msgRef, limitToLast(60));
       onChildAdded(q, async (snap) => {
         try {
           const data = await decryptData(snap.val().p);
-          const div = document.createElement("div");
-          div.className = "msg" + (data.u === myName ? " me" : "");
-          div.dataset.key = snap.key;
+          rowCount++;
+          const tr = document.createElement("tr");
+          if (data.u === myName) tr.className = "me-row";
+          tr.dataset.key = snap.key;
 
-          const meta = document.createElement("div");
-          meta.className = "meta";
-          meta.textContent = `${data.u} • ${data.t}`;
-          div.append(meta);
+          const tdIdx = document.createElement("td");
+          tdIdx.className = "col-idx";
+          tdIdx.textContent = rowCount;
 
-          if (data.m) {
-            const body = document.createElement("div");
-            body.textContent = data.m;
-            div.append(body);
-          }
+          const tdTime = document.createElement("td");
+          tdTime.className = "col-a";
+          tdTime.textContent = data.t;
+
+          const tdUser = document.createElement("td");
+          tdUser.className = "col-b";
+          tdUser.textContent = data.u;
+
+          const tdBody = document.createElement("td");
+          tdBody.className = "col-c";
+          if (data.m) tdBody.textContent = data.m;
           if (data.img) {
-            const img = document.createElement("img");
-            img.src = data.img;
-            img.onclick = () => {
+            const link = document.createElement("span");
+            link.className = "img-link";
+            link.textContent = `📎 img_${data.t.replace(":", "")}.jpg`;
+            link.onclick = () => {
               $("lightboxImg").src = data.img;
               $("lightbox").style.display = "flex";
             };
-            div.append(img);
+            tdBody.appendChild(link);
           }
 
-          $("messages").appendChild(div);
-          $("messages").scrollTop = $("messages").scrollHeight;
+          const tdStatus = document.createElement("td");
+          tdStatus.className = "col-d";
+          tdStatus.textContent = "Đã lưu";
+
+          tr.append(tdIdx, tdTime, tdUser, tdBody, tdStatus);
+          $("chatBody").appendChild(tr);
+
+          if (!isDecoyMode) {
+            $("cellPos").textContent = "C" + (rowCount + 1);
+            $("gridWrap").scrollTop = $("gridWrap").scrollHeight;
+          } else if (data.u !== myName) {
+            $("unreadBadge").style.display = "inline-block";
+          }
         } catch {}
       });
 
@@ -324,8 +477,10 @@
       });
     };
 
-    $("form").onsubmit = async (e) => {
+    // Gửi chữ từ thanh công thức fx
+    $("msgForm").onsubmit = async (e) => {
       e.preventDefault();
+      if (isDecoyMode) return; // Đang ở tab báo cáo giả thì không gửi nhầm
       const text = $("text").value.trim();
       if (!text || !msgRef) return;
       $("text").value = "";
@@ -334,7 +489,9 @@
       push(msgRef, { p: payload });
     };
 
+    // Gửi ảnh
     $("imgBtn").onclick = () => {
+      if (isDecoyMode) return;
       ignoreNextHide = true;
       $("imgInput").click();
     };
@@ -350,9 +507,9 @@
         const payload = await encryptData({ u: myName, img: dataUrl, t: time });
         await push(msgRef, { p: payload });
       } catch {
-        alert("Không xử lý được ảnh này.");
+        alert("Không thể đính kèm tệp này.");
       }
-      $("imgBtn").textContent = "📷";
+      $("imgBtn").textContent = "📎";
     };
 
     $("lightbox").onclick = () => {
@@ -361,9 +518,12 @@
     };
 
     $("wipeBtn").onclick = () => {
-      if (msgRef && confirm("Xóa sạch toàn bộ tin nhắn phòng này?")) {
+      if (msgRef && confirm("Xóa toàn bộ dữ liệu trong sheet Data_ChiTiet?")) {
         remove(msgRef);
-        $("messages").innerHTML = "";
+        const rows = $("chatBody").querySelectorAll("tr:not(.header-row)");
+        rows.forEach(r => r.remove());
+        rowCount = 1;
+        $("cellPos").textContent = "C2";
       }
     };
 
@@ -372,7 +532,6 @@
       if (myPresenceRef) {
         try { await remove(myPresenceRef); } catch {}
       }
-      $("messages").innerHTML = "";
       window.location.replace("https://www.google.com");
     };
   </script>
