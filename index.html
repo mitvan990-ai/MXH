@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Notes</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #111; color: #eee; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Màn hình vào phòng */
+    #login { margin: auto; width: 90%; max-width: 340px; display: flex; flex-direction: column; gap: 12px; }
+    #login h2 { font-size: 18px; font-weight: 500; text-align: center; color: #aaa; margin-bottom: 6px; }
+    input { background: #1e1e1e; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 16px; outline: none; }
+    input:focus { border-color: #4f8cff; }
+    button { background: #4f8cff; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    button:active { opacity: 0.8; }
+
+    /* Màn hình chat */
+    #chat { display: none; flex-direction: column; height: 100dvh; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #1a1a1a; border-bottom: 1px solid #2a2a2a; gap: 8px; }
+    .status-wrap { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #bbb; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #555; flex-shrink: 0; transition: background 0.2s; }
+    .dot.online { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+
+    .actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .btn-sm { padding: 6px 10px; font-size: 13px; border-radius: 6px; background: #2c2c2c; color: #ddd; }
+    .btn-danger { background: #b91c1c; color: #fff; }
+
+    #messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .msg { max-width: 80%; padding: 8px 12px; border-radius: 12px; font-size: 15px; line-height: 1.4; word-break: break-word; background: #222; align-self: flex-start; }
+    .msg.me { background: #2563eb; align-self: flex-end; }
+    .meta { font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+    .msg img { max-width: 100%; max-height: 260px; border-radius: 8px; display: block; margin-top: 4px; cursor: pointer; }
+
+    form { display: flex; align-items: center; gap: 8px; padding: 10px; background: #1a1a1a; border-top: 1px solid #2a2a2a; }
+    #imgBtn { background: #2c2c2c; padding: 10px 12px; font-size: 16px; flex-shrink: 0; }
+    #text { flex: 1; padding: 10px 12px; min-width: 0; }
+
+    /* Phóng to ảnh */
+    #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 99; align-items: center; justify-content: center; padding: 16px; }
+    #lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+  </style>
+</head>
+<body>
+
+  <!-- Màn hình đăng nhập phòng -->
+  <div id="login">
+    <h2>Quick Notes</h2>
+    <input id="name" type="text" placeholder="Tên hiển thị (VD: A)" autocomplete="off">
+    <input id="pass" type="password" placeholder="Mật khẩu phòng chung" autocomplete="off">
+    <button id="joinBtn">Vào</button>
+  </div>
+
+  <!-- Màn hình chat -->
+  <div id="chat">
+    <header>
+      <div class="status-wrap">
+        <span class="dot" id="onlineDot"></span>
+        <span id="onlineText">Đang kết nối...</span>
+      </div>
+      <div class="actions">
+        <button class="btn-sm" id="wipeBtn" title="Xóa toàn bộ tin nhắn">🔥 Xóa</button>
+        <button class="btn-sm btn-danger" id="panicBtn" title="Thoát ngay lập tức">✕ Thoát</button>
+      </div>
+    </header>
+    <div id="messages"></div>
+    <form id="form">
+      <input type="file" id="imgInput" accept="image/*" hidden>
+      <button type="button" id="imgBtn" title="Gửi ảnh">📷</button>
+      <input id="text" type="text" placeholder="Nhắn tin..." autocomplete="off">
+      <button type="submit">Gửi</button>
+    </form>
+  </div>
+
+  <!-- Khung xem ảnh phóng to -->
+  <div id="lightbox"><img id="lightboxImg" src="" alt=""></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, push, set, remove, query, limitToLast, onChildAdded, onChildRemoved, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // ====== DÁN FIREBASE CONFIG CỦA BẠN VÀO ĐÂY ======
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "YOUR_PROJECT",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    // ==================================================
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let myName = "", cryptoKey = null, msgRef = null, myPresenceRef = null;
+    const mySessionId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+    const enc = new TextEncoder(), dec = new TextDecoder();
+    const $ = id => document.getElementById(id);
+
+    function bytesToBase64(bytes) {
+      let bin = "";
+      const chunk = 0x4000;
+      for (let i = 0; i < bytes.length; i += chunk) {
+        bin += String.fromCharCode(...bytes.subarray(i, i + chunk));
+      }
+      return btoa(bin);
+    }
+
+    function base64ToBytes(b64) {
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return bytes;
+    }
+
+    async function initCrypto(pass) {
+      const hashBuf = await crypto.subtle.digest("SHA-256", enc.encode("room-id:" + pass));
+      const roomId = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 24);
+
+      const baseKey = await crypto.subtle.importKey("raw", enc.encode(pass), "PBKDF2", false, ["deriveKey"]);
+      const key = await crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt: enc.encode("static-salt-v1"), iterations: 100000, hash: "SHA-256" },
+        baseKey,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"]
+      );
+      return { roomId, key };
+    }
+
+    async function encryptData(obj) {
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const cipher = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, cryptoKey, enc.encode(JSON.stringify(obj)));
+      const combined = new Uint8Array(iv.length + cipher.byteLength);
+      combined.set(iv);
+      combined.set(new Uint8Array(cipher), iv.length);
+      return bytesToBase64(combined);
+    }
+
+    async function decryptData(b64) {
+      const bytes = base64ToBytes(b64);
+      const iv = bytes.slice(0, 12);
+      const data = bytes.slice(12);
+      const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, cryptoKey, data);
+      return JSON.parse(dec.decode(plain));
+    }
+
+    // Nén ảnh ngay trên trình duyệt (tối đa 800px, JPEG 65%)
+    function compressImage(file) {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          const MAX = 800;
+          let { width, height } = img;
+          if (width > MAX || height > MAX) {
+            if (width > height) { height = Math.round(height * MAX / width); width = MAX; }
+            else { width = Math.round(width * MAX / height); height = MAX; }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.65));
+        };
+        img.onerror = reject;
+        img.src = url;
+      });
+    }
+
+    $("joinBtn").onclick = async () => {
+      myName = $("name").value.trim();
+      const pass = $("pass").value.trim();
+      if (!myName || !pass) return alert("Nhập đủ tên và mật khẩu phòng.");
+
+      const { roomId, key } = await initCrypto(pass);
+      cryptoKey = key;
+      msgRef = ref(db, `rooms/${roomId}/messages`);
+      const presenceListRef = ref(db, `rooms/${roomId}/presence`);
+      myPresenceRef = ref(db, `rooms/${roomId}/presence/${mySessionId}`);
+
+      $("pass").value = "";
+      $("login").style.display = "none";
+      $("chat").style.display = "flex";
+
+      // Theo dõi trạng thái Online/Offline
+      const encName = await encryptData(myName);
+      onValue(ref(db, ".info/connected"), (snap) => {
+        if (snap.val() === true) {
+          onDisconnect(myPresenceRef).remove();
+          set(myPresenceRef, { n: encName });
+        }
+      });
+
+      onValue(presenceListRef, async (snap) => {
+        const val = snap.val() || {};
+        const others = [];
+        for (const [sid, item] of Object.entries(val)) {
+          if (sid === mySessionId) continue;
+          try {
+            const name = await decryptData(item.n);
+            if (!others.includes(name)) others.push(name);
+          } catch {}
+        }
+        if (others.length > 0) {
+          $("onlineDot").classList.add("online");
+          $("onlineText").textContent = `${others.join(", ")} đang online`;
+        } else {
+          $("onlineDot").classList.remove("online");
+          $("onlineText").textContent = "Chưa có ai online";
+        }
+      });
+
+      // Nhận tin nhắn (50 tin gần nhất)
+      const q = query(msgRef, limitToLast(50));
+      onChildAdded(q, async (snap) => {
+        try {
+          const data = await decryptData(snap.val().p);
+          const div = document.createElement("div");
+          div.className = "msg" + (data.u === myName ? " me" : "");
+          div.dataset.key = snap.key;
+
+          const meta = document.createElement("div");
+          meta.className = "meta";
+          meta.textContent = `${data.u} • ${data.t}`;
+          div.append(meta);
+
+          if (data.m) {
+            const body = document.createElement("div");
+            body.textContent = data.m;
+            div.append(body);
+          }
+          if (data.img) {
+            const img = document.createElement("img");
+            img.src = data.img;
+            img.onclick = () => {
+              $("lightboxImg").src = data.img;
+              $("lightbox").style.display = "flex";
+            };
+            div.append(img);
+          }
+
+          $("messages").appendChild(div);
+          $("messages").scrollTop = $("messages").scrollHeight;
+        } catch {}
+      });
+
+      onChildRemoved(msgRef, (snap) => {
+        const el = document.querySelector(`[data-key="${snap.key}"]`);
+        if (el) el.remove();
+      });
+    };
+
+    // Gửi chữ
+    $("form").onsubmit = async (e) => {
+      e.preventDefault();
+      const text = $("text").value.trim();
+      if (!text || !msgRef) return;
+      $("text").value = "";
+      const time = new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+      const payload = await encryptData({ u: myName, m: text, t: time });
+      push(msgRef, { p: payload });
+    };
+
+    // Gửi ảnh
+    $("imgBtn").onclick = () => $("imgInput").click();
+    $("imgInput").onchange = async (e) => {
+      const file = e.target.files[0];
+      e.target.value = "";
+      if (!file || !msgRef) return;
+      $("imgBtn").textContent = "⏳";
+      try {
+        const dataUrl = await compressImage(file);
+        const time = new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+        const payload = await encryptData({ u: myName, img: dataUrl, t: time });
+        await push(msgRef, { p: payload });
+      } catch {
+        alert("Không xử lý được ảnh này.");
+      }
+      $("imgBtn").textContent = "📷";
+    };
+
+    // Đóng khung xem ảnh
+    $("lightbox").onclick = () => {
+      $("lightbox").style.display = "none";
+      $("lightboxImg").src = "";
+    };
+
+    // Xóa toàn bộ tin nhắn phòng
+    $("wipeBtn").onclick = () => {
+      if (msgRef && confirm("Xóa sạch toàn bộ tin nhắn phòng này?")) {
+        remove(msgRef);
+        $("messages").innerHTML = "";
+      }
+    };
+
+    // Thoát nhanh (tắt chấm xanh ngay lập tức rồi đẩy sang Google)
+    $("panicBtn").onclick = async () => {
+      if (myPresenceRef) {
+        try { await remove(myPresenceRef); } catch {}
+      }
+      $("messages").innerHTML = "";
+      window.location.replace("https://www.google.com");
+    };
+  </script>
+</body>
+</html>
