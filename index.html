@@ -8,7 +8,6 @@
   <style>
     :root {
       --green: #0f9d58;
-      --green-bg: #e6f4ea;
       --border: #e0e0e0;
       --cell-border: #e2e3e3;
       --header-bg: #f8f9fa;
@@ -19,37 +18,49 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: #fff; color: var(--text); height: 100dvh; display: flex; flex-direction: column; overflow: hidden; font-size: 13px; }
 
-    /* === MÀN HÌNH ĐĂNG NHẬP (Kiểu hộp thoại bảo mật tài liệu) === */
+    /* === MÀN HÌNH MỞ TRANG TÍNH (Đăng nhập & Khóa khi ẩn tab) === */
     #login { position: fixed; inset: 0; background: #f1f3f4; display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
-    .login-box { background: #fff; border: 1px solid #dadce0; border-radius: 8px; padding: 24px; width: 100%; max-width: 360px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 14px; }
-    .login-head { display: flex; align-items: center; gap: 10px; }
-    .sheets-icon { width: 28px; height: 28px; background: var(--green); border-radius: 4px; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; flex-shrink: 0; }
+    .login-box { background: #fff; border: 1px solid #dadce0; border-radius: 8px; padding: 24px; width: 100%; max-width: 370px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 12px; }
+    .login-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .sheets-icon { width: 28px; height: 28px; background: var(--green); border-radius: 4px; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; flex-shrink: 0; user-select: none; }
     .login-head h2 { font-size: 16px; font-weight: 500; color: var(--text); }
     .login-sub { font-size: 12px; color: var(--muted); }
-    .login-box input { border: 1px solid #dadce0; border-radius: 4px; padding: 10px 12px; font-size: 14px; outline: none; }
+    .login-box input { border: 1px solid #dadce0; border-radius: 4px; padding: 10px 12px; font-size: 14px; outline: none; width: 100%; }
     .login-box input:focus { border-color: var(--green); }
-    .login-box button { background: var(--green); color: #fff; border: none; border-radius: 4px; padding: 10px; font-size: 14px; font-weight: 500; cursor: pointer; }
-    .login-box button:hover { opacity: 0.92; }
+    .pass-row { display: flex; gap: 6px; }
+    .pass-row input { flex: 1; min-width: 0; }
+    .btn-gen { background: #f8f9fa; border: 1px solid #dadce0; color: var(--text); border-radius: 4px; padding: 0 10px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+    .btn-gen:hover { background: #e8eaed; }
+    .btn-primary { background: var(--green); color: #fff; border: none; border-radius: 4px; padding: 10px; font-size: 14px; font-weight: 500; cursor: pointer; width: 100%; }
+    .btn-primary:hover { opacity: 0.92; }
+    #loginMsg { font-size: 12px; color: var(--green); min-height: 16px; }
+    #loginMsg.err { color: #d93025; }
 
-    /* === GIAO DIỆN CHÍNH GOOGLE SHEETS === */
+    /* === GIAO DIỆN GOOGLE SHEETS === */
     #app { display: none; flex-direction: column; height: 100dvh; width: 100%; }
 
-    /* Top Header */
-    .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px 4px; background: #f9fbfd; gap: 10px; }
+    .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px 4px; background: #f9fbfd; gap: 8px; }
     .top-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .top-left .sheets-icon { cursor: pointer; }
     .doc-info { min-width: 0; }
     .doc-title { font-size: 16px; font-weight: 400; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .menu-bar { display: flex; gap: 12px; font-size: 13px; color: var(--text); margin-top: 2px; }
     .menu-bar span { cursor: pointer; padding: 2px 4px; border-radius: 3px; }
     .menu-bar span:hover { background: #e8eaed; }
 
-    .top-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    .presence-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 16px; background: #f1f3f4; font-size: 12px; color: var(--muted); border: 1px solid #e0e0e0; }
+    .top-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; position: relative; }
+    .presence-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 16px; background: #f1f3f4; font-size: 12px; color: var(--muted); border: 1px solid #e0e0e0; cursor: pointer; user-select: none; }
     .dot { width: 8px; height: 8px; border-radius: 50%; background: #9aa0a6; flex-shrink: 0; }
     .dot.online { background: var(--green); box-shadow: 0 0 4px var(--green); }
-    .btn-sheet { background: #c2e7ff; color: #001d35; border: none; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 500; cursor: pointer; }
-    .btn-ghost { background: transparent; border: 1px solid #dadce0; color: var(--muted); padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+    .btn-share { background: #c2e7ff; color: #001d35; border: none; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .btn-share:hover { background: #a8d8f8; }
+    .btn-ghost { background: transparent; border: 1px solid #dadce0; color: var(--muted); padding: 5px 9px; border-radius: 4px; font-size: 12px; cursor: pointer; }
     .btn-ghost:hover { background: #f1f3f4; color: var(--text); }
+
+    /* Danh sách người online dạng popup */
+    #onlinePopup { display: none; position: absolute; top: 36px; right: 0; background: #fff; border: 1px solid #dadce0; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); padding: 8px 12px; min-width: 170px; max-height: 220px; overflow-y: auto; z-index: 50; font-size: 12px; }
+    #onlinePopup div { padding: 3px 0; border-bottom: 1px solid #f1f3f4; }
+    #onlinePopup div:last-child { border-bottom: none; }
 
     /* Toolbar (Desktop only) */
     .toolbar { display: flex; align-items: center; gap: 14px; padding: 6px 16px; margin: 4px 12px 6px; background: #edf2fa; border-radius: 20px; font-size: 12px; color: #444746; overflow-x: auto; white-space: nowrap; }
@@ -81,11 +92,9 @@
     .me-row td:not(.col-idx) { background: #f8fbff; }
     .img-link { color: var(--blue); text-decoration: underline; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
 
-    /* Thanh Sheet Tabs dưới đáy */
-    .sheet-tabs { display: flex; align-items: center; background: #f8f9fa; border-top: 1px solid var(--border); padding: 0 10px; height: 36px; gap: 4px; flex-shrink: 0; }
-    .tab-btn { padding: 7px 14px; font-size: 12px; font-weight: 500; color: var(--muted); background: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; height: 100%; display: flex; align-items: center; gap: 6px; }
-    .tab-btn.active { background: #fff; color: var(--green); border-bottom-color: var(--green); }
-    .tab-badge { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); display: none; }
+    /* Thanh đáy kiểu Google Sheets (1 sheet duy nhất) */
+    .sheet-tabs { display: flex; align-items: center; background: #f8f9fa; border-top: 1px solid var(--border); padding: 0 10px; height: 34px; gap: 10px; flex-shrink: 0; color: var(--muted); font-size: 13px; }
+    .tab-active { padding: 6px 14px; font-size: 12px; font-weight: 500; color: var(--green); background: #fff; border-bottom: 3px solid var(--green); height: 100%; display: flex; align-items: center; }
 
     /* Lightbox xem ảnh */
     #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 2000; align-items: center; justify-content: center; padding: 16px; }
@@ -95,47 +104,51 @@
     @media (max-width: 768px) {
       .menu-bar, .toolbar, .col-d { display: none !important; }
       .top-bar { padding: 8px 10px; border-bottom: 1px solid var(--border); background: #fff; }
-      .doc-title { font-size: 15px; font-weight: 500; }
-      .presence-pill { padding: 3px 8px; font-size: 11px; }
+      .doc-title { font-size: 14px; font-weight: 500; }
+      .presence-pill { padding: 3px 7px; font-size: 11px; }
+      .btn-share { padding: 4px 9px; font-size: 11px; }
       .btn-ghost { padding: 4px 7px; font-size: 11px; }
       .col-idx { width: 28px; }
-      .col-a { width: 52px; font-size: 11px; padding: 5px 4px; }
-      .col-b { width: 78px; font-size: 12px; padding: 5px 6px; }
+      .col-a { width: 50px; font-size: 11px; padding: 5px 4px; }
+      .col-b { width: 76px; font-size: 12px; padding: 5px 6px; }
       .col-c { font-size: 13px; padding: 5px 6px; }
 
-      /* Đẩy Formula Bar xuống đáy trên Mobile giống app Google Sheets */
       .formula-bar { order: 3; height: 44px; border-top: 1px solid #dadce0; border-bottom: none; }
       .cell-name { display: none; }
       .fx-label { width: 34px; font-size: 15px; }
       #text { font-size: 15px; }
       .grid-wrap { order: 2; }
-      .sheet-tabs { order: 4; height: 38px; background: #f1f3f4; }
+      .sheet-tabs { order: 4; height: 34px; background: #f1f3f4; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Màn hình mở tệp (Đăng nhập phòng) -->
+  <!-- Màn hình Mở trang tính (Đăng nhập + Màn hình khóa khi ẩn tab) -->
   <div id="login">
-    <div class="login-box">
+    <form class="login-box" id="loginForm">
       <div class="login-head">
         <div class="sheets-icon">⊞</div>
         <div>
           <h2>Theo_Doi_Khach_Hang_T11</h2>
-          <div class="login-sub">Tài liệu nội bộ được bảo vệ bằng mật khẩu</div>
+          <div class="login-sub">Tài liệu nội bộ được bảo vệ bằng mã truy cập</div>
         </div>
       </div>
       <input id="name" type="text" placeholder="Tên nhân sự (VD: Văn)" autocomplete="off">
-      <input id="pass" type="password" placeholder="Mã truy cập tài liệu" autocomplete="off">
-      <button id="joinBtn">Mở trang tính</button>
-    </div>
+      <div class="pass-row">
+        <input id="pass" type="password" placeholder="Mã truy cập (tối thiểu 8 ký tự)" autocomplete="off">
+        <button type="button" class="btn-gen" id="genBtn" title="Tạo mã phòng ngẫu nhiên an toàn">Tạo mã</button>
+      </div>
+      <button type="submit" class="btn-primary">Mở trang tính</button>
+      <div id="loginMsg"></div>
+    </form>
   </div>
 
   <!-- Giao diện Google Sheets -->
   <div id="app">
     <div class="top-bar">
       <div class="top-left">
-        <div class="sheets-icon">⊞</div>
+        <div class="sheets-icon" id="lockBtn" title="Khóa màn hình ngay">⊞</div>
         <div class="doc-info">
           <div class="doc-title">Theo_Doi_Khach_Hang_T11</div>
           <div class="menu-bar">
@@ -144,16 +157,17 @@
         </div>
       </div>
       <div class="top-right">
-        <div class="presence-pill" title="Người đang xem chung tệp">
+        <div class="presence-pill" id="presenceBtn" title="Bấm để xem danh sách">
           <span class="dot" id="onlineDot"></span>
-          <span id="onlineText">1 người xem</span>
+          <span id="onlineText">1 đang xem</span>
         </div>
-        <button class="btn-ghost" id="wipeBtn" title="Xóa toàn bộ dữ liệu sheet này">Xóa lọc</button>
-        <button class="btn-ghost" id="panicBtn" title="Đóng tệp ngay lập tức">Đóng</button>
+        <button class="btn-share" id="shareBtn" title="Sao chép link mời vào phòng">Chia sẻ</button>
+        <button class="btn-ghost" id="wipeBtn" title="Xóa toàn bộ dữ liệu phòng">Xóa lọc</button>
+        <button class="btn-ghost" id="panicBtn" title="Thoát hẳn">Đóng</button>
+        <div id="onlinePopup"></div>
       </div>
     </div>
 
-    <!-- Thanh công cụ giả (Chỉ hiện trên Desktop) -->
     <div class="toolbar">
       <span>↶</span><span>↷</span><span>🖨️</span><span class="sep">|</span>
       <span>100% ▾</span><span class="sep">|</span>
@@ -164,7 +178,6 @@
       <span>田</span><span>≡ ▾</span><span>∑</span>
     </div>
 
-    <!-- Thanh công thức fx = Ô nhập tin nhắn -->
     <div class="formula-bar">
       <div class="cell-name" id="cellPos">C2</div>
       <div class="fx-label">fx</div>
@@ -176,10 +189,8 @@
       </form>
     </div>
 
-    <!-- Khu vực bảng tính -->
     <div class="grid-wrap" id="gridWrap">
-      <!-- Bảng 1: Dữ liệu thật (Chat) -->
-      <table id="sheetChat">
+      <table>
         <thead>
           <tr>
             <th class="col-idx"></th>
@@ -199,45 +210,15 @@
           </tr>
         </tbody>
       </table>
-
-      <!-- Bảng 2: Báo cáo giả (Ngụy trang) -->
-      <table id="sheetDecoy" style="display:none;">
-        <thead>
-          <tr>
-            <th class="col-idx"></th>
-            <th class="col-a">A</th>
-            <th class="col-b">B</th>
-            <th class="col-c">C</th>
-            <th class="col-d">D</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="header-row">
-            <td class="col-idx">1</td>
-            <td class="col-a">Mã KH</td>
-            <td class="col-b">Tên cửa hàng</td>
-            <td class="col-c">Tình trạng chăm sóc</td>
-            <td class="col-d">Tiến độ</td>
-          </tr>
-          <tr><td class="col-idx">2</td><td class="col-a">KH-104</td><td class="col-b">Tạp hóa Minh Anh</td><td class="col-c">Đã gửi báo giá gói cơ bản, hẹn gọi lại chiều T5</td><td class="col-d">Đang xử lý</td></tr>
-          <tr><td class="col-idx">3</td><td class="col-a">KH-105</td><td class="col-b">Cafe Góc Phố</td><td class="col-c">Chủ quán quan tâm phần mềm order bàn, cần demo trực tiếp</td><td class="col-d">Hẹn lịch</td></tr>
-          <tr><td class="col-idx">4</td><td class="col-a">KH-106</td><td class="col-b">Bún Chả Cô Lan</td><td class="col-c">Không nghe máy lần 1, note gọi lại khung 14h30</td><td class="col-d">Chờ gọi</td></tr>
-          <tr><td class="col-idx">5</td><td class="col-a">KH-107</td><td class="col-b">Thời trang Nắng</td><td class="col-c">Đang dùng sổ tay, cân nhắc chuyển đổi quản lý tồn kho</td><td class="col-d">Tiềm năng</td></tr>
-          <tr><td class="col-idx">6</td><td class="col-a">KH-108</td><td class="col-b">Hiệu thuốc An Tâm</td><td class="col-c">Đã xin số Zalo quản lý, gửi tài liệu tham khảo</td><td class="col-d">Đã gửi</td></tr>
-          <tr><td class="col-idx">7</td><td class="col-a">KH-109</td><td class="col-b">Trà sữa Bobo</td><td class="col-c">Cần thêm máy in hóa đơn nhiệt, báo giá combo thiết bị</td><td class="col-d">Báo giá</td></tr>
-          <tr><td class="col-idx">8</td><td class="col-a">KH-110</td><td class="col-b">Siêu thị mini 24h</td><td class="col-c">Xác nhận lịch qua cửa hàng khảo sát lúc 9h00 sáng mai</td><td class="col-d">Đã chốt</td></tr>
-        </tbody>
-      </table>
     </div>
 
-    <!-- Thanh chuyển Sheet dưới đáy -->
     <div class="sheet-tabs">
-      <button class="tab-btn" id="tabDecoy">BaoCao_TongHop</button>
-      <button class="tab-btn active" id="tabChat">Data_ChiTiet <span class="tab-badge" id="unreadBadge"></span></button>
+      <span>+</span>
+      <span>≡</span>
+      <div class="tab-active">Data_ChiTiet</div>
     </div>
   </div>
 
-  <!-- Khung phóng to ảnh -->
   <div id="lightbox"><img id="lightboxImg" src="" alt=""></div>
 
   <script type="module">
@@ -258,57 +239,116 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    let myName = "", cryptoKey = null, msgRef = null, myPresenceRef = null;
-    let isLoggedIn = false, isDecoyMode = false, ignoreNextHide = false, rowCount = 1;
+    const MAX_MSGS = 50;                      // Giữ tối đa 50 tin gần nhất
+    const MSG_TTL = 24 * 60 * 60 * 1000;      // Tự xóa tin cũ hơn 24 giờ
+
+    let myName = "", currentPass = "", cryptoKey = null, msgRef = null, myPresenceRef = null;
+    let isLoggedIn = false, ignoreNextHide = false;
+    let unsubscribes = [], activeMsgs = [];
     const mySessionId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
     const enc = new TextEncoder(), dec = new TextDecoder();
     const $ = id => document.getElementById(id);
 
-    // --- Chuyển đổi giữa Sheet Thật & Sheet Giả ---
-    function switchToDecoy() {
-      if (!isLoggedIn) return;
-      isDecoyMode = true;
-      $("lightbox").style.display = "none";
-      $("sheetChat").style.display = "none";
-      $("sheetDecoy").style.display = "table";
-      $("tabDecoy").classList.add("active");
-      $("tabChat").classList.remove("active");
-      $("text").value = "";
-      $("text").placeholder = "Nhập công thức báo cáo...";
-      $("cellPos").textContent = "A2";
+    // --- Tiện ích thông báo & Copy ---
+    function setLoginMsg(text, isErr = false) {
+      $("loginMsg").textContent = text;
+      $("loginMsg").className = isErr ? "err" : "";
     }
 
-    function switchToChat() {
-      isDecoyMode = false;
-      $("sheetDecoy").style.display = "none";
-      $("sheetChat").style.display = "table";
-      $("tabChat").classList.add("active");
-      $("tabDecoy").classList.remove("active");
-      $("unreadBadge").style.display = "none";
-      $("text").placeholder = "Nhập văn bản hoặc công thức...";
-      $("cellPos").textContent = "C" + (rowCount + 1);
+    async function copyText(str) {
+      try {
+        await navigator.clipboard.writeText(str);
+        return true;
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = str;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        return true;
+      }
+    }
+
+    function buildInviteLink(pass) {
+      return `${location.origin}${location.pathname}#c=${encodeURIComponent(pass)}`;
+    }
+
+    // Tự điền mã từ link mời (#c=...) rồi xóa sạch khỏi thanh địa chỉ
+    if (location.hash.startsWith("#c=")) {
+      const code = decodeURIComponent(location.hash.slice(3)).trim();
+      if (code) {
+        $("pass").value = code;
+        setLoginMsg("Đã tự điền mã từ link mời. Chỉ cần nhập tên.");
+      }
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+
+    // Sinh mã phòng ngẫu nhiên 12 ký tự (không thể đoán)
+    function generateStrongCode() {
+      const chars = "abcdefghjkmnpqrstuvwxyz23456789";
+      const bytes = crypto.getRandomValues(new Uint8Array(12));
+      let out = "";
+      for (let i = 0; i < 12; i++) {
+        if (i > 0 && i % 4 === 0) out += "-";
+        out += chars[bytes[i] % chars.length];
+      }
+      return out;
+    }
+
+    $("genBtn").onclick = async () => {
+      const code = generateStrongCode();
+      $("pass").value = code;
+      await copyText(buildInviteLink(code));
+      setLoginMsg("Đã tạo mã bảo mật & sao chép link mời.");
+    };
+
+    function isWeakCode(code) {
+      if (code.length < 8) return "Mã truy cập phải từ 8 ký tự trở lên (hoặc bấm Tạo mã).";
+      if (/^(.)\1+$/.test(code)) return "Mã truy cập quá đơn giản, vui lòng đổi mã khác.";
+      const lower = code.toLowerCase();
+      if ("01234567890123456789".includes(lower) || "98765432109876543210".includes(lower) || "abcdefghij".includes(lower)) {
+        return "Không dùng chuỗi số/chữ liên tiếp làm mã phòng.";
+      }
+      return null;
+    }
+
+    // --- Khóa màn hình về lại hộp thoại "Mở trang tính" ---
+    function lockToLogin() {
+      if (!isLoggedIn) return;
+      $("lightbox").style.display = "none";
+      $("onlinePopup").style.display = "none";
+      $("name").value = "";
+      $("pass").value = "";
+      setLoginMsg("");
+      $("app").style.display = "none";
+      $("login").style.display = "flex";
+    }
+
+    function unlockToApp() {
+      $("login").style.display = "none";
+      $("app").style.display = "flex";
       $("gridWrap").scrollTop = $("gridWrap").scrollHeight;
     }
 
-    $("tabDecoy").onclick = switchToDecoy;
-    $("tabChat").onclick = switchToChat;
-
-    // Tự động chuyển sang báo cáo giả khi chuyển tab/app
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         if (ignoreNextHide) return;
-        switchToDecoy();
+        lockToLogin();
       } else {
-        ignoreNextHide = false;
+        setTimeout(() => { ignoreNextHide = false; }, 300);
       }
     });
 
-    // Bấm phím ESC trên PC để ẩn ngay sang báo cáo giả
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && isLoggedIn) switchToDecoy();
+      if (e.key === "Escape" && isLoggedIn && $("app").style.display !== "none") {
+        lockToLogin();
+      }
     });
 
-    // --- Mã hóa & Nén ảnh ---
+    $("lockBtn").onclick = lockToLogin;
+
+    // --- Mã hóa & Nén ảnh (tối ưu cho 80-100 người) ---
     function bytesToBase64(bytes) {
       let bin = "";
       const chunk = 0x4000;
@@ -357,7 +397,7 @@
         const img = new Image();
         img.onload = () => {
           URL.revokeObjectURL(url);
-          const MAX = 800;
+          const MAX = 640;
           let { width, height } = img;
           if (width > MAX || height > MAX) {
             if (width > height) { height = Math.round(height * MAX / width); width = MAX; }
@@ -367,71 +407,153 @@
           canvas.width = width;
           canvas.height = height;
           canvas.getContext("2d").drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL("image/jpeg", 0.65));
+          resolve(canvas.toDataURL("image/jpeg", 0.55));
         };
         img.onerror = reject;
         img.src = url;
       });
     }
 
-    // --- Mở trang tính (Vào phòng) ---
-    $("joinBtn").onclick = async () => {
-      myName = $("name").value.trim();
-      const pass = $("pass").value.trim();
-      if (!myName || !pass) return alert("Vui lòng nhập đầy đủ tên và mã truy cập.");
+    function reindexRows() {
+      const rows = $("chatBody").querySelectorAll("tr:not(.header-row)");
+      rows.forEach((tr, i) => {
+        const idxCell = tr.querySelector(".col-idx");
+        if (idxCell) idxCell.textContent = i + 2;
+      });
+      $("cellPos").textContent = "C" + (rows.length + 2);
+    }
 
-      const { roomId, key } = await initCrypto(pass);
+    function cleanupRoom() {
+      unsubscribes.forEach(fn => { try { fn(); } catch {} });
+      unsubscribes = [];
+      activeMsgs = [];
+      if (myPresenceRef) { try { remove(myPresenceRef); } catch {} }
+      $("chatBody").querySelectorAll("tr:not(.header-row)").forEach(r => r.remove());
+      $("cellPos").textContent = "C2";
+    }
+
+    // Tự động xóa tin cũ vượt quá MAX_MSGS hoặc quá 24h
+    function pruneOldMessages() {
+      if (!msgRef) return;
+      const now = Date.now();
+      while (activeMsgs.length > MAX_MSGS) {
+        const oldest = activeMsgs.shift();
+        remove(ref(db, `${msgRef.key ? "" : ""}`)).catch?.(() => {});
+        remove(ref(db, `rooms/${currentRoomId}/messages/${oldest.key}`));
+      }
+      activeMsgs.forEach(m => {
+        if (m.ts && (now - m.ts > MSG_TTL)) {
+          remove(ref(db, `rooms/${currentRoomId}/messages/${m.key}`));
+        }
+      });
+    }
+
+    let currentRoomId = "";
+
+    // --- Xử lý bấm "Mở trang tính" ---
+    $("loginForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const inputName = $("name").value.trim();
+      const inputPass = $("pass").value.trim();
+
+      // Nếu đã vào phòng rồi và để trống 2 ô -> Mở lại ngay không cần gõ lại
+      if (isLoggedIn && !inputName && !inputPass) {
+        unlockToApp();
+        return;
+      }
+
+      if (!inputName || !inputPass) {
+        setLoginMsg("Vui lòng nhập đầy đủ tên và mã truy cập.", true);
+        return;
+      }
+
+      const weakErr = isWeakCode(inputPass);
+      if (weakErr) {
+        setLoginMsg(weakErr, true);
+        return;
+      }
+
+      cleanupRoom();
+      myName = inputName;
+      currentPass = inputPass;
+
+      const { roomId, key } = await initCrypto(currentPass);
+      currentRoomId = roomId;
       cryptoKey = key;
       msgRef = ref(db, `rooms/${roomId}/messages`);
       const presenceListRef = ref(db, `rooms/${roomId}/presence`);
       myPresenceRef = ref(db, `rooms/${roomId}/presence/${mySessionId}`);
 
+      $("name").value = "";
       $("pass").value = "";
-      $("login").style.display = "none";
-      $("app").style.display = "flex";
+      setLoginMsg("");
       isLoggedIn = true;
+      unlockToApp();
 
-      // Trạng thái Online
+      // Theo dõi Online (tối ưu cho 80-100 người)
       const encName = await encryptData(myName);
-      onValue(ref(db, ".info/connected"), (snap) => {
+      unsubscribes.push(onValue(ref(db, ".info/connected"), (snap) => {
         if (snap.val() === true) {
           onDisconnect(myPresenceRef).remove();
           set(myPresenceRef, { n: encName });
         }
-      });
+      }));
 
-      onValue(presenceListRef, async (snap) => {
+      unsubscribes.push(onValue(presenceListRef, async (snap) => {
         const val = snap.val() || {};
-        const others = [];
+        const names = [];
+        let total = 0;
         for (const [sid, item] of Object.entries(val)) {
+          total++;
           if (sid === mySessionId) continue;
           try {
             const name = await decryptData(item.n);
-            if (!others.includes(name)) others.push(name);
+            names.push(name);
           } catch {}
         }
-        if (others.length > 0) {
+
+        if (names.length > 0) {
           $("onlineDot").classList.add("online");
-          $("onlineText").textContent = `${others.join(", ")} đang xem`;
+          $("onlineText").textContent = names.length <= 2
+            ? `${names.join(", ")} đang xem`
+            : `${total} đang xem`;
         } else {
           $("onlineDot").classList.remove("online");
           $("onlineText").textContent = "Chỉ mình bạn";
         }
-      });
 
-      // Nhận tin nhắn (mỗi tin = 1 dòng trong bảng)
-      const q = query(msgRef, limitToLast(60));
-      onChildAdded(q, async (snap) => {
+        // Cập nhật danh sách popup khi bấm vào trạng thái online
+        $("onlinePopup").innerHTML = "";
+        const allList = [myName + " (Bạn)", ...names];
+        allList.forEach(n => {
+          const d = document.createElement("div");
+          d.textContent = "• " + n;
+          $("onlinePopup").appendChild(d);
+        });
+      }));
+
+      // Nhận tin nhắn (tự lọc & xóa tin quá 24h)
+      const q = query(msgRef, limitToLast(MAX_MSGS + 10));
+      unsubscribes.push(onChildAdded(q, async (snap) => {
+        const val = snap.val();
+        if (!val || !val.p) return;
+
+        // Tự dọn tin nhắn cũ quá 24h
+        if (val.ts && (Date.now() - val.ts > MSG_TTL)) {
+          remove(ref(db, `rooms/${currentRoomId}/messages/${snap.key}`));
+          return;
+        }
+
         try {
-          const data = await decryptData(snap.val().p);
-          rowCount++;
+          const data = await decryptData(val.p);
+          activeMsgs.push({ key: snap.key, ts: val.ts || Date.now() });
+
           const tr = document.createElement("tr");
           if (data.u === myName) tr.className = "me-row";
           tr.dataset.key = snap.key;
 
           const tdIdx = document.createElement("td");
           tdIdx.className = "col-idx";
-          tdIdx.textContent = rowCount;
 
           const tdTime = document.createElement("td");
           tdTime.className = "col-a";
@@ -444,7 +566,7 @@
           const tdBody = document.createElement("td");
           tdBody.className = "col-c";
           if (data.m) tdBody.textContent = data.m;
-          if (data.img) {
+          if (data.img && data.img.startsWith("data:image/")) {
             const link = document.createElement("span");
             link.className = "img-link";
             link.textContent = `📎 img_${data.t.replace(":", "")}.jpg`;
@@ -461,37 +583,56 @@
 
           tr.append(tdIdx, tdTime, tdUser, tdBody, tdStatus);
           $("chatBody").appendChild(tr);
-
-          if (!isDecoyMode) {
-            $("cellPos").textContent = "C" + (rowCount + 1);
-            $("gridWrap").scrollTop = $("gridWrap").scrollHeight;
-          } else if (data.u !== myName) {
-            $("unreadBadge").style.display = "inline-block";
-          }
+          reindexRows();
+          $("gridWrap").scrollTop = $("gridWrap").scrollHeight;
         } catch {}
-      });
+      }));
 
-      onChildRemoved(msgRef, (snap) => {
+      unsubscribes.push(onChildRemoved(msgRef, (snap) => {
+        activeMsgs = activeMsgs.filter(m => m.key !== snap.key);
         const el = document.querySelector(`[data-key="${snap.key}"]`);
-        if (el) el.remove();
-      });
+        if (el) {
+          el.remove();
+          reindexRows();
+        }
+      }));
     };
 
-    // Gửi chữ từ thanh công thức fx
+    // Xem danh sách người online
+    $("presenceBtn").onclick = (e) => {
+      e.stopPropagation();
+      const pop = $("onlinePopup");
+      pop.style.display = pop.style.display === "block" ? "none" : "block";
+    };
+    document.addEventListener("click", () => { $("onlinePopup").style.display = "none"; });
+
+    // Nút Chia sẻ (Copy link mời)
+    $("shareBtn").onclick = async () => {
+      if (!currentPass) return;
+      await copyText(buildInviteLink(currentPass));
+      const old = $("shareBtn").textContent;
+      $("shareBtn").textContent = "Đã chép link ✓";
+      setTimeout(() => { $("shareBtn").textContent = old; }, 1800);
+    };
+
+    // Gửi tin nhắn chữ
+    async function sendEncrypted(obj) {
+      const payload = await encryptData(obj);
+      await push(msgRef, { p: payload, ts: Date.now() });
+      pruneOldMessages();
+    }
+
     $("msgForm").onsubmit = async (e) => {
       e.preventDefault();
-      if (isDecoyMode) return; // Đang ở tab báo cáo giả thì không gửi nhầm
       const text = $("text").value.trim();
       if (!text || !msgRef) return;
       $("text").value = "";
       const time = new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
-      const payload = await encryptData({ u: myName, m: text, t: time });
-      push(msgRef, { p: payload });
+      await sendEncrypted({ u: myName, m: text, t: time });
     };
 
     // Gửi ảnh
     $("imgBtn").onclick = () => {
-      if (isDecoyMode) return;
       ignoreNextHide = true;
       $("imgInput").click();
     };
@@ -504,8 +645,7 @@
       try {
         const dataUrl = await compressImage(file);
         const time = new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
-        const payload = await encryptData({ u: myName, img: dataUrl, t: time });
-        await push(msgRef, { p: payload });
+        await sendEncrypted({ u: myName, img: dataUrl, t: time });
       } catch {
         alert("Không thể đính kèm tệp này.");
       }
@@ -518,20 +658,18 @@
     };
 
     $("wipeBtn").onclick = () => {
-      if (msgRef && confirm("Xóa toàn bộ dữ liệu trong sheet Data_ChiTiet?")) {
+      if (msgRef && confirm("Xóa sạch toàn bộ dữ liệu trong phòng này?")) {
         remove(msgRef);
-        const rows = $("chatBody").querySelectorAll("tr:not(.header-row)");
-        rows.forEach(r => r.remove());
-        rowCount = 1;
-        $("cellPos").textContent = "C2";
+        activeMsgs = [];
+        $("chatBody").querySelectorAll("tr:not(.header-row)").forEach(r => r.remove());
+        reindexRows();
       }
     };
 
     $("panicBtn").onclick = async () => {
       isLoggedIn = false;
-      if (myPresenceRef) {
-        try { await remove(myPresenceRef); } catch {}
-      }
+      currentPass = "";
+      cleanupRoom();
       window.location.replace("https://www.google.com");
     };
   </script>
